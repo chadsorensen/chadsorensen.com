@@ -1,0 +1,11 @@
+/* ============================================ *
+ * FONTS
+ * ============================================ */
+
+@include font-face("light", "./assets/fonts/Quicksand-Light", $file-formats: eot svg ttf woff);
+@include font-face("regular", "./assets/fonts/Quicksand-Regular", $file-formats: eot svg ttf woff);
+@include font-face("bold", "./assets/fonts/Quicksand-Bold", $file-formats: eot svg ttf woff);
+
+$font-light: 'light', helvetica, sans-serif;
+$font-regular: 'regular', helvetica, sans-serif;
+$font-bold: 'bold', helvetica, sans-serif;

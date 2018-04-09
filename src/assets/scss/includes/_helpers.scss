@@ -1,0 +1,38 @@
+/* ============================================ *
+ * HELPERS
+ * ============================================ */
+.cover {
+  @include cover;
+  outline: none;
+}
+
+a.cover {
+  cursor: pointer;
+}
+
+.content-container {
+  padding: $content-padding;
+}
+
+.mobile-only {
+  display: none;
+}
+@include bp(max-width, $tablet) {
+  .mobile-only {
+    display: block;
+  }
+}
+
+.hide {
+  @include transform(translateY(-100%));
+  @include transition(all .3s);
+}
+
+.cd-image-replace {
+  /* replace text with image */
+  display: inline-block;
+  overflow: hidden;
+  text-indent: 100%;
+  white-space: nowrap;
+  color: transparent;
+}
