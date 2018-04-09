@@ -1,0 +1,182 @@
+// ==========================================================================
+// ★ WORK
+// ==========================================================================
+.wrapper {
+  @include display(flex);
+  @include flex-flow(row wrap);
+  margin: 0;
+  padding: 0;
+}
+.item {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: center;
+  margin: 0;
+  @include flex(100%);
+  @include MQ(M) {
+    @include flex(50%);
+  }
+  @include MQ(ML) {
+    @include flex(33.33%);
+  }
+  &.last {
+    max-width: 100%;
+    max-height: 100%;
+    @include MQ(M) {
+      @include flex(100%);
+    }
+  }
+  figure {
+    position: relative;
+    overflow: hidden;
+    margin: 0;
+    background: $color-3;
+    text-align: center;
+    cursor: pointer;
+    backface-visibility: hidden;
+    img {
+      position: relative;
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      opacity: 0.5;
+    }
+    figcaption {
+      padding: 2em;
+      color: #fff;
+      text-transform: uppercase;
+      font-size: 1.25em;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      &::before,
+      &::after {
+        pointer-events: none;
+      }
+    }
+  }
+  p {
+    width: auto;
+    margin: 0 1em;
+    float: left;
+    font-size: 1em;
+  }
+}
+
+.item figure figcaption,
+.item figure figcaption > a {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Anchor will cover the whole item by default */
+/* For some effects it will show as a button */
+.item figure figcaption > a {
+  z-index: 1000;
+  text-indent: 200%;
+  white-space: nowrap;
+  font-size: 0;
+  opacity: 0;
+}
+
+.item figure h2 {
+  word-spacing: -0.15em;
+  font-size: 3rem;
+  font-weight: 500;
+}
+
+.item figure h2 span {
+  font-weight: 800;
+}
+
+.item figure h2,
+.item figure p {
+  margin: 0;
+  color: $color-3;
+}
+
+.item figure p {
+  letter-spacing: 1px;
+  font-size: 68.5%;
+}
+
+
+figure.effect-honey {
+  background: #000;
+}
+
+figure.effect-honey img {
+  opacity: 1;
+  -webkit-transition: opacity 0.35s;
+  transition: opacity 0.35s;
+}
+
+figure.effect-honey:hover img {
+  opacity: 0.25;
+}
+
+figure.effect-honey figcaption::before {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background: #fff;
+  content: '';
+  -webkit-transform: translate3d(0,10px,0);
+  transform: translate3d(0,10px,0);
+}
+
+figure.effect-honey h2 {
+  position: absolute;
+  top: 5%;
+  left: 0;
+  padding: 1em .75em;
+  width: 100%;
+  text-align: left;
+  -webkit-transform: translate3d(0,-30px,0);
+  transform: translate3d(0,-30px,0);
+  opacity: 0;
+}
+
+figure.effect-honey p {
+  position: absolute;
+  top: 20%;
+  left: 0;
+  padding: 1em 1.75em;
+  width: 100%;
+  text-align: left;
+  -webkit-transform: translate3d(0,30px,0);
+  transform: translate3d(0,30px,0);
+  opacity: 0;
+}
+
+figure.effect-honey h2 i {
+  font-style: normal;
+  opacity: 0;
+  -webkit-transition: opacity 0.35s, -webkit-transform 0.35s;
+  transition: opacity 0.35s, transform 0.35s;
+  -webkit-transform: translate3d(0,-30px,0);
+  transform: translate3d(0,-30px,0);
+}
+
+figure.effect-honey figcaption::before,
+figure.effect-honey h2,
+figure.effect-honey p {
+  -webkit-transition: -webkit-transform 0.35s, opacity 0.35s;
+  transition: transform 0.35s, opacity 0.35s;
+}
+
+figure.effect-honey:hover figcaption::before,
+figure.effect-honey:hover h2,
+figure.effect-honey:hover p,
+figure.effect-honey:hover h2 i {
+  opacity: 1;
+  -webkit-transform: translate3d(0,0,0);
+  transform: translate3d(0,0,0);
+}
