@@ -3,7 +3,7 @@
     <h2 class="ribbon">These are some things I've done</h2>
     <div>
       <div class="wrapper">
-        <div v-for="work in works" class="item animate-up" :class="work.animateUp">
+        <div v-for="work in works" class="item">
           <figure class="effect-honey">
             <img :src="loadImg(work.image)" alt="">
             <figcaption>
@@ -28,17 +28,8 @@
     },
     methods: {
       loadImg: function (image) {
-         return require("../assets/img/"+image);
-      },
-      scrollMagic: function() {
-        var controller = new this.$scrollmagic.Controller;
-        new this.$scrollmagic.Scene({
-          triggerElement: '#work'
-        }).setClassToggle('#work', 'active').addTo(controller);
+        return require("../assets/img/"+image);
       }
-    },
-    mounted () {
-      this.$nextTick(this.scrollMagic)
     }
   }
 </script>

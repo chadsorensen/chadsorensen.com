@@ -1,5 +1,5 @@
 <template>
-  <section id="hello" class="cd-index cd-main-content" :class="active ? 'active': '' ">
+  <section id="hello" class="cd-index cd-main-content" :class="active">
     <div class="scroll-hide-wrapper">
       <div class="scroll-hide-container">
         <h1 class="animate-left">Hello, I'm Chad</h1>

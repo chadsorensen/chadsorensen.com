@@ -1,3 +1,7 @@
+// ==========================================================================
+// ★ LAYOUT
+// ==========================================================================
+
 // breakpoints
 
 $S:     480px;
@@ -30,5 +34,42 @@ $L:     1170px;
     float: left;
     padding: 20px;
     padding-left: 0;
+  }
+}
+
+main {
+  padding: 0;
+  text-align: left;
+
+  .cd-main-content {
+    position: relative;
+    height: 100%;
+
+    a {
+      text-decoration: none;
+    }
+  }
+
+  p {
+    width: 100%;
+    max-width: $M;
+    margin: 1em 0;
+    font-size: 1.4rem;
+    line-height: 1.25;
+    color: $color-2;
+    text-align: left;
+  }
+
+  ul {
+    margin-top: .5em;
+    padding: 0;
+  }
+
+  @include MQ(M) {
+
+    p {
+      font-size: 1.8rem;
+      line-height: 1.25;
+    }
   }
 }

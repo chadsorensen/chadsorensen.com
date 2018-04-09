@@ -19,26 +19,11 @@
 
 <script>
   var aboutImage = require("../assets/img/chadsorensen.jpg")
-  var $ = require("jquery");
   export default {
     data () {
       return {
         aboutImage
       }
     },
-    methods: {
-      scrollMagic: function() {
-        var controller = new this.$scrollmagic.Controller;
-        new this.$scrollmagic.Scene({
-          triggerElement: '#about',
-          offset: 600
-        }).addTo(controller).on('enter', function(e) {
-          return $('#about').addClass('active');
-        });
-      }
-    },
-    mounted () {
-      this.$nextTick(this.scrollMagic)
-    }
   }
 </script>
