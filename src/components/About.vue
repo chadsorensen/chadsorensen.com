@@ -1,6 +1,6 @@
 <template>
   <section id="about" class="">
-    <h2 class="ribbon">I currently spend time at <a href="http://roundhouseagency.com" title="">roundhouse agency</a></h2>
+    <h2 class="ribbon">I currently spend time at <a href="http://about.ondiem.com" title="">onDiem</a></h2>
     <div class="image-holder">
       <img :src="aboutImage" alt="">
     </div>
