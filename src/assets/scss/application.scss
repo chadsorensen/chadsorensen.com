@@ -1,0 +1,136 @@
+// ==========================================================================
+// ★ INCLUDES
+// ==========================================================================
+
+@import "lib/bourbon/bourbon";
+@import 'includes/variables';
+@import 'includes/mixins';
+@import 'includes/helpers';
+@import 'includes/layout';
+@import 'components/component';
+@import 'components/navigation';
+@import 'components/work';
+
+// ==========================================================================
+// ★ GENERAL
+// ==========================================================================
+
+*, *::after, *::before {
+  box-sizing: border-box;
+}
+
+body, html {
+  overflow-x: hidden;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  margin: 0;
+  background: $color-3;
+  padding: 0;
+  font: {
+    size: 1.4rem;
+    family: $primary-font; // variables inside partials > _variables.scss
+  }
+  color: $color-2;
+  @include font-smoothing;
+}
+
+a {
+  color: $color-2;
+  outline: none;
+  text-decoration: none;
+}
+
+
+
+button {
+  text-decoration: none;
+  outline: none;
+}
+
+h1 {
+  color: $color-2;
+  font-size: 3.6rem;
+  margin: 0;
+  font-weight: 300;
+  @include MQ(M) {
+    font-size: 4.4rem;
+  }
+}
+
+h2 {
+  color: $color-2;
+  font-size: 1.4rem;
+  margin: 0;
+  font-weight: 300;
+  @include MQ(M) {
+    font-size: 2.2rem;
+  }
+}
+
+h3 {
+  color: $color-2;
+  margin: 0 0 2em;
+  font-size: 1rem;
+
+  font-weight: 300;
+  @include MQ(M) {
+    font-size: 2rem;
+  }
+}
+
+// ==========================================================================
+// ★ MAIN
+// ==========================================================================
+main {
+  padding: 0;
+  text-align: left;
+
+  .cd-main-content {
+    position: relative;
+    height: 100%;
+
+    a {
+      text-decoration: none;
+    }
+  }
+
+  p {
+    width: 100%;
+    max-width: $M;
+    margin: 1em 0;
+    font-size: 1.4rem;
+    line-height: 1.25;
+    color: $color-2;
+    text-align: left;
+  }
+
+  ul {
+    margin-top: .5em;
+    padding: 0;
+  }
+
+  @include MQ(M) {
+
+    // .cd-main-content {
+    //  height: 100vh;
+    // }
+
+    // &.cd-index > div {
+    //  padding-top: 200px;
+    // }
+
+    &.cd-index > div {
+      // padding-top: 50px;
+    }
+
+    p {
+      font-size: 1.8rem;
+      line-height: 1.25;
+    }
+  }
+}

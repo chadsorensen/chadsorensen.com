@@ -1,6 +1,8 @@
 {
-  "name": "chadsorensen",
-  "version": "0.1.0",
+  "name": "chadsorensen.com",
+  "version": "2.0.0",
+  "description": "Portfolio Site for Chad Sorensen, a frontend developer based out of Portland, Oregon",
+  "author": "Chad Sorensen <chdsorensen@gmail.com>",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
