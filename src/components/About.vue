@@ -7,7 +7,7 @@
     <div class="inner-wrap">
       <div class="col-6">
         <h3>Who I am</h3>
-        <p>As a native Oregonian, I love being outside: be it on the mountain, in the woods or in the ocean. As a Portlander, I love being inside: be it playing pinball, rolling bowling balls or watching Star Wars with my {{ calculateAge(2016,11,23) }} year old son and {{ calculateAge(2012,5,20) }} year old daughter.</p>
+        <p>As a native Oregonian, I love being outside: be it on the mountain, in the woods or in the ocean. As a Portlander, I love being inside: be it playing pinball, rolling bowling balls or watching Star Wars with my {{ calculateAge(2012,5,20) }} year old daughter and chasing my {{ calculateAge(2016,11,23) }} year old son around.</p>
       </div>
       <div class="col-6">
         <h3>What I do</h3>
