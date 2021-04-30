@@ -32,10 +32,13 @@ html {
   box-sizing: border-box;
 }
 
-*,
-*:before,
-*:after {
-  box-sizing: inherit;
+// *,
+// *:before,
+// *:after {
+//   box-sizing: inherit;
+// }
+*, *::after, *::before {
+  box-sizing: border-box;
 }
 
 /* consider resetting the default cursor: https://gist.github.com/murtaugh/5247154 */

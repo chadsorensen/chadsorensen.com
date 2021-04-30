@@ -2,8 +2,11 @@
 // ★ WORK
 // ==========================================================================
 .wrapper {
-  @include display(flex);
-  @include flex-flow(row wrap);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  @include bp(min-width, 1280px) {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
   margin: 0;
   padding: 0;
 }

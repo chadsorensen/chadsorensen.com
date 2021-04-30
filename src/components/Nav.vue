@@ -2,7 +2,7 @@
   <div>
     <nav class="cd-vertical-nav">
       <ul>
-        <li v-for="navItem in navItems">
+        <li v-for="(navItem, index) in navItems" :key="`item-${index}`">
           <a :href="'#'+navItem.link" :title="navItem.link"><span class="label">{{ navItem.link }}</span></a>
         </li>
       </ul>

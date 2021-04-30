@@ -3,7 +3,7 @@
     <h2 class="ribbon">These are some things I've done</h2>
     <div>
       <div class="wrapper">
-        <div v-for="work in works" class="item" :class="work.animateUp">
+        <div v-for="(work, index) in works" class="item" :key="`work-${index}`">
           <figure class="effect-honey">
             <img :src="loadImg(work.image)" alt="">
             <figcaption>

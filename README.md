@@ -1,4 +1,6 @@
-# chadsorensen
+# chadsorensen.com
+
+> Portfolio Site for Chad Sorensen, a frontend developer based out of Portland, Oregon
 
 ## Project setup
 ```

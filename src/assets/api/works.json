@@ -1,50 +1,71 @@
 [
   {
+    "title": "Sage Fly Fishing",
+    "url": "http://www.sageflyfish.com/",
+    "image": "sage.jpg",
+    "skills": "Twig, Backbone, Ecomm, Responsive",
+    "animateUp": "4"
+  },
+  {
+    "title": "Roundhouse",
+    "url": "http://roundhouseagency.com/",
+    "image": "roundhouse.jpg",
+    "skills": "Craft CMS, Responsive",
+    "animateUp": "5"
+  },
+  {
+    "title": "Crosby Hop Farm",
+    "url": "https://crosbyhops.com/",
+    "image": "crosby.jpg",
+    "skills": "CraftCMS, Javascript, Ecomm",
+    "animateUp": "6"
+  },
+  {
     "title": "Teton Gravity",
     "url": "http://tetongravity.com",
-    "image": "teton2.jpg",
+    "image": "teton.jpg",
     "skills": "Expression Engine, Responsive",
     "animateUp": "4"
   },
   {
     "title": "Hydro Flask",
     "url": "http://www.hydroflask.com/",
-    "image": "hydro2.jpg",
+    "image": "hydro.jpg",
     "skills": "Magento, Ecomm, Mobile First",
     "animateUp": "5"
   },
   {
     "title": "Redington",
     "url": "http://www.redington.com/",
-    "image": "redington2.jpg",
-    "skills": "XCART, Ecomm, Responsive",
+    "image": "redington.jpg",
+    "skills": "Twig, Backbone, Ecomm, Responsive",
     "animateUp": "6"
   },
   {
-    "title": "Roundhouse",
-    "url": "http://roundhouseagency.com/",
-    "image": "roundhouse2.jpg",
-    "skills": "Craft CMS, Responsive",
+    "title": "Rio Fly Fishing",
+    "url": "https://www.rioproducts.com/",
+    "image": "rio.jpg",
+    "skills": "Twig, Backbone, Ecomm, Responsive",
     "animateUp": "4"
   },
   {
     "title": "Fishpeople",
     "url": "http://www.fishpeopleseafood.com/",
-    "image": "fishpeople2.jpg",
+    "image": "fishpeople.jpg",
     "skills": "Shopify, Ecomm, Responsive",
     "animateUp": "5"
   },
   {
     "title": "Adidas Runbase",
     "url": "http://bostonrunbase.com/",
-    "image": "runbase2.jpg",
+    "image": "runbase.jpg",
     "skills": "Craft CMS, Eventbrite, Responsive",
     "animateUp": "6"
   },
   {
     "title": "Frest Coast",
     "url": "http://frestcoast.com/",
-    "image": "frestcoast2.jpg",
+    "image": "frestcoast.jpg",
     "skills": "Squarespace, Ecomm, Responsive",
     "animateUp": "4"
   },
