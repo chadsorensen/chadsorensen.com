@@ -51,7 +51,7 @@ const emptyMessage = computed(() => {
 })
 
 const subtitle = computed(() => {
-  if (state.value === 'locked') return 'The household grocery list'
+  if (state.value === 'locked') return 'Grocery list'
   if (!items.value.length) return 'Empty list'
   if (!remaining.value) return 'All done'
   return `${remaining.value} ${remaining.value === 1 ? 'thing' : 'things'} to grab`
@@ -154,7 +154,7 @@ const statusLabel = computed(
 <template>
   <div class="bag">
     <header class="masthead">
-      <h1>Shopper</h1>
+      <h1><span class="h1__family">Sorensen</span> Shopper</h1>
       <p class="subtitle">{{ subtitle }}</p>
       <p v-if="state !== 'locked'" class="status" :class="`status--${state}`" role="status">
         <span class="status__dot" aria-hidden="true" />{{ statusLabel }}
@@ -401,6 +401,16 @@ h1 {
   letter-spacing: -0.02em;
   transform: rotate(-2deg);
   transform-origin: left bottom;
+}
+
+/* Stacked lockup: family name sits small above the big word */
+.h1__family {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.36em;
+  font-weight: 700;
+  font-stretch: 90%;
+  letter-spacing: 0;
 }
 
 .subtitle {
