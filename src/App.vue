@@ -1,27 +1,17 @@
-<template>
-  <div id="app">
-    <app-nav></app-nav>
-    <router-view/>
-    <app-footer></app-footer>
-  </div>
-</template>
-
-<script>
-import Navigation from './components/Nav'
-import Footer from './components/Footer'
-export default {
-  components: {
-    'app-nav': Navigation,
-    'app-footer': Footer
-  },
-  data () {
-    return {
-    }
-  }
-}
+<script setup lang="ts">
+import SiteNav from './components/SiteNav.vue'
+import HelloSection from './components/HelloSection.vue'
+import WorkSection from './components/WorkSection.vue'
+import AboutSection from './components/AboutSection.vue'
+import ContactSection from './components/ContactSection.vue'
 </script>
 
-<style lang="scss">
-  @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;700&display=swap');
-  @import 'assets/scss/application.scss'
-</style>
+<template>
+  <SiteNav />
+  <main>
+    <HelloSection />
+    <WorkSection />
+    <AboutSection />
+  </main>
+  <ContactSection />
+</template>
