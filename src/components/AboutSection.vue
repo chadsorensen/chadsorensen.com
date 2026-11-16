@@ -24,15 +24,16 @@ const sonAge = yearsSince(2016, 11, 23)
           As a native Oregonian, I love being outside: be it on the mountain, in the woods or in the
           ocean. As a Portlander, I love being inside: be it playing pinball, rolling bowling balls
           or watching Star Wars with my {{ daughterAge }} year old daughter and chasing my
-          {{ sonAge }} year old son around.
+          {{ sonAge }} year old son around the soccer field.
         </p>
       </div>
       <div>
         <h3>What I do</h3>
         <p>
-          As a frontend developer, I love being in code: be it writing semantic markup, lean styles
-          or modular scripts. I work well when paired with a backend developer and am comfortable in
-          a wide array of environments. Lately, I have been digging Vue and CraftCMS.
+          As a frontend developer, I love being in code: be it building component systems, shipping
+          mobile apps or wiring up APIs. These days I spend most of my time in TypeScript across
+          React, React Native and Vue. I've been contracting since 2011, so I'm just as comfortable
+          dropping into an existing team as I am owning a project end to end.
         </p>
       </div>
     </div>
