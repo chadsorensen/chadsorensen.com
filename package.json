@@ -15,6 +15,7 @@
     "typecheck": "vue-tsc -b"
   },
   "dependencies": {
+    "@upstash/redis": "^1.41.0",
     "vue": "^3.5.45"
   },
   "devDependencies": {
