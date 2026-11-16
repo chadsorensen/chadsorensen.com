@@ -5,9 +5,9 @@ import teton from '@/assets/img/teton.jpg'
 import hydro from '@/assets/img/hydro.jpg'
 import redington from '@/assets/img/redington.jpg'
 import rio from '@/assets/img/rio.jpg'
-import fishpeople from '@/assets/img/fishpeople.jpg'
-import runbase from '@/assets/img/runbase.jpg'
-import frestcoast from '@/assets/img/frestcoast.jpg'
+import pongpinger from '@/assets/img/pongpinger.jpg'
+import layerssquared from '@/assets/img/layerssquared.jpg'
+import rockyriver from '@/assets/img/rockyriver.jpg'
 import rhconstruction from '@/assets/img/rhconstruction.jpg'
 import westerntitle from '@/assets/img/westerntitle.jpg'
 
@@ -63,22 +63,22 @@ export const works: Work[] = [
     skills: ['Twig', 'Backbone', 'Ecomm', 'Responsive'],
   },
   {
-    title: 'Fishpeople',
-    url: 'https://www.fishpeopleseafood.com/',
-    image: fishpeople,
-    skills: ['Shopify', 'Ecomm', 'Responsive'],
+    title: 'PongPinger',
+    url: 'https://pongpinger.com/',
+    image: pongpinger,
+    skills: ['React', 'Supabase', 'Leaflet', 'Tailwind'],
   },
   {
-    title: 'Adidas Runbase',
-    url: 'http://bostonrunbase.com/',
-    image: runbase,
-    skills: ['Craft CMS', 'Eventbrite', 'Responsive'],
+    title: 'Layers Squared',
+    url: 'https://layerssquared.com/',
+    image: layerssquared,
+    skills: ['Shopify', 'Liquid', 'Ecomm', 'Responsive'],
   },
   {
-    title: 'Frest Coast',
-    url: 'http://frestcoast.com/',
-    image: frestcoast,
-    skills: ['Squarespace', 'Ecomm', 'Responsive'],
+    title: 'Rocky River Irrigation',
+    url: 'https://rockyriverirrigation.com/',
+    image: rockyriver,
+    skills: ['Next.js', 'TypeScript', 'Tailwind', 'Local SEO'],
   },
   {
     title: 'RH Construction',
