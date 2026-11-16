@@ -1,6 +1,7 @@
 import { timingSafeEqual } from 'node:crypto'
 import { Redis } from '@upstash/redis'
 import {
+  MAX_BATCH,
   MAX_ITEMS,
   cleanTitle,
   isId,
@@ -47,12 +48,21 @@ async function listItems(): Promise<ShopperItem[]> {
 async function apply(mutation: ShopperMutation): Promise<Response | null> {
   switch (mutation.op) {
     case 'add': {
-      const title = cleanTitle(mutation.title)
-      if (!isId(mutation.id) || !title) return json({ error: 'Invalid item' }, 400)
-      if ((await redis().hlen(KEY)) >= MAX_ITEMS) return json({ error: 'List is full' }, 409)
-      const item: ShopperItem = { id: mutation.id, title, done: false, createdAt: Date.now() }
+      const incoming = Array.isArray(mutation.items) ? mutation.items.slice(0, MAX_BATCH) : []
+      const items: ShopperItem[] = []
+      const now = Date.now()
+      for (const [i, raw] of incoming.entries()) {
+        const title = cleanTitle(raw?.title)
+        if (!isId(raw?.id) || !title) return json({ error: 'Invalid item' }, 400)
+        // Stagger timestamps so a batch keeps the order it was entered in.
+        items.push({ id: raw.id, title, done: false, createdAt: now + (incoming.length - i) })
+      }
+      if (!items.length) return json({ error: 'Nothing to add' }, 400)
+      if ((await redis().hlen(KEY)) + items.length > MAX_ITEMS) {
+        return json({ error: 'List is full' }, 409)
+      }
       // hsetnx so a retried add can't clobber an item that was edited since
-      await redis().hsetnx(KEY, item.id, item)
+      await Promise.all(items.map((item) => redis().hsetnx(KEY, item.id, item)))
       return null
     }
 

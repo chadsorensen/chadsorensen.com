@@ -4,8 +4,8 @@
   "start_url": "/shopper/",
   "scope": "/shopper/",
   "display": "standalone",
-  "background_color": "#f4f6f5",
-  "theme_color": "#00cc93",
+  "background_color": "#d7b98e",
+  "theme_color": "#5d8fdf",
   "icons": [
     { "src": "/shopper/icon-180.png", "sizes": "180x180", "type": "image/png" },
     { "src": "/shopper/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }

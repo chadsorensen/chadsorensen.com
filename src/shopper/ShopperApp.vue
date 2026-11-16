@@ -1,7 +1,11 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { MAX_TITLE_LENGTH, type ShopperItem } from '../../shared/shopper'
 import { useShopperList } from './useShopperList'
+import { speechSupported } from './useSpeech'
+import { splitTyped } from './parse'
+import { stickerFor } from './stickers'
+import VoiceSheet from './VoiceSheet.vue'
 
 const {
   items,
@@ -9,7 +13,7 @@ const {
   wrongPassphrase,
   remaining,
   completed,
-  add,
+  addMany,
   toggle,
   rename,
   remove,
@@ -22,7 +26,7 @@ const {
 
 const filters = ['active', 'all', 'done'] as const
 type Filter = (typeof filters)[number]
-const filterLabels: Record<Filter, string> = { active: 'To get', all: 'All', done: 'Got it' }
+const filterLabels: Record<Filter, string> = { active: 'To grab', all: 'Everything', done: 'In the bag' }
 
 const readFilter = (): Filter => {
   const hash = location.hash.replace('#/', '') as Filter
@@ -40,18 +44,69 @@ const visible = computed(() =>
 )
 
 const emptyMessage = computed(() => {
-  if (!items.value.length) return 'The list is empty. Add something above.'
-  if (filter.value === 'active') return 'Got everything. Nice.'
+  if (!items.value.length) return 'Nothing on the list. Type a few things separated by commas, or say them.'
+  if (filter.value === 'active') return "Everything's in the bag."
   if (filter.value === 'done') return 'Nothing checked off yet.'
   return ''
 })
+
+const subtitle = computed(() => {
+  if (state.value === 'locked') return 'The household grocery list'
+  if (!items.value.length) return 'Empty list'
+  if (!remaining.value) return 'All done'
+  return `${remaining.value} ${remaining.value === 1 ? 'thing' : 'things'} to grab`
+})
+
+/* ---------- Toast ---------- */
+
+const toast = ref('')
+let toastTimer: ReturnType<typeof setTimeout> | undefined
+function say(message: string) {
+  toast.value = message
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => (toast.value = ''), 2600)
+}
+
+function addTitles(titles: string[]) {
+  const { added, skipped } = addMany(titles)
+  const parts: string[] = []
+  if (added.length > 1) parts.push(`Added ${added.length} items`)
+  if (skipped.length) parts.push(`Already on the list: ${skipped.join(', ')}`)
+  if (parts.length) say(parts.join('. '))
+  if (added.length && filter.value === 'done') location.hash = '#/active'
+  return added.length + skipped.length > 0
+}
 
 /* ---------- Adding ---------- */
 
 const newTitle = ref('')
 function submitNew() {
-  if (add(newTitle.value)) newTitle.value = ''
+  if (addTitles(splitTyped(newTitle.value))) newTitle.value = ''
 }
+
+const voiceSupported = speechSupported
+const voiceOpen = ref(false)
+function addSpoken(titles: string[]) {
+  voiceOpen.value = false
+  addTitles(titles)
+}
+
+/* ---------- Checking off (+ a little celebration for the last one) ---------- */
+
+const burst = ref(0)
+let celebrate = false
+function check(item: ShopperItem) {
+  celebrate = !item.done && remaining.value === 1
+  toggle(item)
+}
+watch(remaining, (now) => {
+  if (celebrate && now === 0) burst.value++
+  celebrate = false
+})
+const burstEmoji = computed(() => {
+  const pool = items.value.map((item) => stickerFor(item.title).emoji)
+  return Array.from({ length: 14 }, (_, i) => pool[i % Math.max(pool.length, 1)] ?? '🛒')
+})
 
 /* ---------- Inline editing ---------- */
 
@@ -89,137 +144,186 @@ const statusLabel = computed(
   () =>
     ({
       locked: '',
-      syncing: 'Syncing…',
+      syncing: 'Syncing',
       ready: 'Synced',
-      offline: 'Offline. Changes may not save.',
+      offline: "Offline. Changes might not save",
     })[state.value],
 )
 </script>
 
 <template>
-  <div class="shopper">
-    <header class="top">
+  <div class="bag">
+    <header class="masthead">
       <h1>Shopper</h1>
+      <p class="subtitle">{{ subtitle }}</p>
       <p v-if="state !== 'locked'" class="status" :class="`status--${state}`" role="status">
         <span class="status__dot" aria-hidden="true" />{{ statusLabel }}
       </p>
     </header>
 
-    <!-- Locked -->
-    <form v-if="state === 'locked'" class="unlock" @submit.prevent="submitPassphrase">
-      <label for="passphrase">Passphrase</label>
-      <input
-        id="passphrase"
-        v-model="passphrase"
-        type="password"
-        autocomplete="current-password"
-        enterkeyhint="go"
-        autofocus
-      />
-      <p v-if="wrongPassphrase" class="unlock__error" role="alert">That passphrase didn't work.</p>
-      <button type="submit" class="primary">Open list</button>
-    </form>
-
-    <!-- List -->
-    <template v-else>
-      <form class="add" @submit.prevent="submitNew">
-        <label for="new-item" class="visually-hidden">Add an item</label>
+    <main class="pad">
+      <!-- Locked -->
+      <form v-if="state === 'locked'" class="unlock" @submit.prevent="submitPassphrase">
+        <label for="passphrase">Passphrase</label>
         <input
-          id="new-item"
-          v-model="newTitle"
-          placeholder="What do we need?"
-          autocomplete="off"
-          autocapitalize="sentences"
-          enterkeyhint="enter"
-          :maxlength="MAX_TITLE_LENGTH"
+          id="passphrase"
+          v-model="passphrase"
+          type="password"
+          autocomplete="current-password"
+          enterkeyhint="go"
           autofocus
         />
-        <button type="submit" class="primary" :disabled="!newTitle.trim()">Add</button>
+        <p v-if="wrongPassphrase" class="unlock__error" role="alert">
+          That passphrase didn't match. Check it and try again.
+        </p>
+        <button type="submit" class="btn-tomato">Open the list</button>
       </form>
 
-      <ul v-if="visible.length" class="list">
-        <li v-for="item in visible" :key="item.id" class="item" :class="{ 'item--done': item.done }">
-          <template v-if="editingId === item.id">
-            <input
-              v-model="draft"
-              class="item__edit"
-              :data-edit="item.id"
-              :maxlength="MAX_TITLE_LENGTH"
-              enterkeyhint="done"
-              aria-label="Edit item"
-              @keydown.enter.prevent="finishEdit(item)"
-              @keydown.esc.prevent="cancelEdit"
-              @blur="finishEdit(item)"
-            />
-          </template>
-          <template v-else>
-            <button
-              type="button"
-              class="item__toggle"
-              :aria-pressed="item.done"
-              @click="toggle(item)"
-              @dblclick.prevent="startEdit(item)"
-            >
-              <span class="item__check" aria-hidden="true" />
-              <span class="item__title">{{ item.title }}</span>
-            </button>
-            <button type="button" class="icon" :aria-label="`Edit ${item.title}`" @click="startEdit(item)">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4" />
-              </svg>
-            </button>
-            <button type="button" class="icon" :aria-label="`Remove ${item.title}`" @click="remove(item)">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
-            </button>
-          </template>
-        </li>
-      </ul>
-      <p v-else class="empty">{{ emptyMessage }}</p>
-
-      <footer class="bottom">
-        <span class="count">{{ remaining }} {{ remaining === 1 ? 'item' : 'items' }} left</span>
-        <nav class="filters" aria-label="Filter">
-          <a
-            v-for="f in filters"
-            :key="f"
-            :href="`#/${f}`"
-            :class="{ selected: filter === f }"
-            :aria-current="filter === f ? 'page' : undefined"
+      <!-- List -->
+      <template v-else>
+        <form class="add" @submit.prevent="submitNew">
+          <label for="new-item" class="visually-hidden">Add items, separated by commas</label>
+          <input
+            id="new-item"
+            v-model="newTitle"
+            placeholder="Eggs, limes, tortillas…"
+            autocomplete="off"
+            autocapitalize="off"
+            enterkeyhint="enter"
+            :maxlength="MAX_TITLE_LENGTH * 4"
+          />
+          <button
+            v-if="voiceSupported"
+            type="button"
+            class="add__mic"
+            aria-label="Say your list"
+            @click="voiceOpen = true"
           >
-            {{ filterLabels[f] }}
-          </a>
-        </nav>
-        <div class="bottom__actions">
-          <button v-if="completed" type="button" class="link" @click="clearCompleted">
-            Clear checked ({{ completed }})
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="9" y="3" width="6" height="11" rx="3" />
+              <path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" />
+            </svg>
           </button>
-          <button type="button" class="link link--muted" @click="lock">Lock</button>
-        </div>
-      </footer>
-    </template>
+          <button type="submit" class="btn-tomato" :disabled="!newTitle.trim()">Add</button>
+        </form>
+
+        <ul v-if="visible.length" class="list">
+          <li
+            v-for="item in visible"
+            :key="item.id"
+            class="item"
+            :class="[{ 'item--done': item.done }, `aisle-${stickerFor(item.title).aisle}`]"
+          >
+            <template v-if="editingId === item.id">
+              <span class="sticker" aria-hidden="true">{{ stickerFor(draft || item.title).emoji }}</span>
+              <input
+                v-model="draft"
+                class="item__edit"
+                :data-edit="item.id"
+                :maxlength="MAX_TITLE_LENGTH"
+                enterkeyhint="done"
+                aria-label="Edit item"
+                @keydown.enter.prevent="finishEdit(item)"
+                @keydown.esc.prevent="cancelEdit"
+                @blur="finishEdit(item)"
+              />
+            </template>
+            <template v-else>
+              <button
+                type="button"
+                class="item__toggle"
+                :aria-pressed="item.done"
+                @click="check(item)"
+                @dblclick.prevent="startEdit(item)"
+              >
+                <span class="sticker" aria-hidden="true">{{ stickerFor(item.title).emoji }}</span>
+                <span class="item__title">
+                  {{ item.title }}
+                  <svg class="scribble" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true">
+                    <path
+                      d="M1 7 C 12 3, 20 10, 32 6 S 52 3, 64 7 S 86 9, 99 5"
+                    />
+                  </svg>
+                </span>
+              </button>
+              <button type="button" class="icon" :aria-label="`Edit ${item.title}`" @click="startEdit(item)">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4" />
+                </svg>
+              </button>
+              <button type="button" class="icon" :aria-label="`Remove ${item.title}`" @click="remove(item)">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+              </button>
+            </template>
+          </li>
+        </ul>
+        <p v-else class="empty">{{ emptyMessage }}</p>
+
+        <footer class="pad__foot">
+          <nav class="filters" aria-label="Show">
+            <a
+              v-for="f in filters"
+              :key="f"
+              :href="`#/${f}`"
+              :class="{ selected: filter === f }"
+              :aria-current="filter === f ? 'page' : undefined"
+            >
+              {{ filterLabels[f] }}
+            </a>
+          </nav>
+          <div class="pad__actions">
+            <button v-if="completed" type="button" class="link" @click="clearCompleted">
+              Clear what's in the bag ({{ completed }})
+            </button>
+            <button type="button" class="link link--quiet" @click="lock">Lock</button>
+          </div>
+        </footer>
+      </template>
+    </main>
+
+    <p class="toast" :class="{ 'toast--on': toast }" role="status" aria-live="polite">{{ toast }}</p>
+
+    <div v-if="burst" :key="burst" class="burst" aria-hidden="true">
+      <span
+        v-for="(emoji, i) in burstEmoji"
+        :key="i"
+        :style="{ '--x': `${(i * 37) % 100}%`, '--d': `${(i % 7) * 70}ms`, '--r': `${((i * 53) % 60) - 30}deg` }"
+      >
+        {{ emoji }}
+      </span>
+    </div>
+
+    <VoiceSheet v-if="voiceOpen" @add="addSpoken" @close="voiceOpen = false" />
   </div>
 </template>
 
 <style>
 :root {
-  --green: #00cc93;
-  --green-ink: #00805c;
-  --bg: #f4f6f5;
-  --card: #fff;
-  --text: #1d2321;
-  --muted: #6b7672;
-  --line: #e3e8e6;
+  --kraft: #d7b98e;
+  --kraft-deep: #c49f6c;
+  --kraft-soft: #f1e4cf;
+  --paper: #fffefa;
+  --ink: #2a2017;
+  --muted: #7a6a58;
+  --line: #e7dccb;
+  --tomato: #e5482c;
+  --tomato-ink: #b3301a;
+  --leaf: #2f9b5a;
+  --citrus: #f5c342;
   color-scheme: light dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --green-ink: #3ee0b1;
-    --bg: #111514;
-    --card: #1a201e;
-    --text: #e8eeec;
-    --muted: #94a19c;
-    --line: #2a3330;
+    --kraft: #3a2b1d;
+    --kraft-deep: #2e2216;
+    --kraft-soft: #3b2f23;
+    --paper: #221b15;
+    --ink: #f4ecdf;
+    --muted: #b5a48f;
+    --line: #3a3027;
+    --tomato-ink: #ff8a73;
+    --leaf: #4cc27c;
   }
 }
 
@@ -229,12 +333,16 @@ const statusLabel = computed(
   box-sizing: border-box;
 }
 
+html {
+  background: var(--kraft);
+}
+
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Open Sans', system-ui, sans-serif;
-  font-size: 16px;
+  color: var(--ink);
+  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.35;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
 }
@@ -261,30 +369,43 @@ button {
 </style>
 
 <style scoped>
-.shopper {
+/* ---------- Bag + masthead ---------- */
+
+.bag {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
   max-width: 560px;
   margin: 0 auto;
-  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+  padding: max(20px, env(safe-area-inset-top)) 14px max(16px, env(safe-area-inset-bottom));
+  /* faint paper-bag fibres */
+  background-image:
+    repeating-linear-gradient(97deg, transparent 0 7px, rgb(0 0 0 / 0.018) 7px 8px),
+    repeating-linear-gradient(3deg, transparent 0 11px, rgb(255 255 255 / 0.03) 11px 12px);
 }
 
-/* ---------- Header ---------- */
-
-.top {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
+.masthead {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  padding: 0 6px 18px;
 }
 
 h1 {
+  grid-column: 1 / -1;
   margin: 0;
-  font-size: 28px;
-  font-weight: 700;
+  font-size: clamp(52px, 17vw, 76px);
+  font-weight: 800;
+  font-stretch: 75%;
+  line-height: 0.85;
   letter-spacing: -0.02em;
+  transform: rotate(-2deg);
+  transform-origin: left bottom;
+}
+
+.subtitle {
+  margin: 10px 0 0;
+  font-weight: 600;
 }
 
 .status {
@@ -292,73 +413,98 @@ h1 {
   align-items: center;
   gap: 6px;
   margin: 0;
-  color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .status__dot {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  background: var(--green);
+  background: var(--leaf);
 }
 
 .status--syncing .status__dot {
-  animation: pulse 1s ease-in-out infinite alternate;
+  background: var(--citrus);
+  animation: blink 0.9s ease-in-out infinite alternate;
 }
 
 .status--offline {
-  color: #c2410c;
+  color: var(--tomato-ink);
 }
 
 .status--offline .status__dot {
-  background: #f97316;
+  background: var(--tomato);
 }
 
-@keyframes pulse {
-  to {
-    opacity: 0.3;
-  }
+/* ---------- Notepad ---------- */
+
+.pad {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 22px 16px 18px;
+  border-radius: 4px 4px 14px 14px;
+  background: var(--paper);
+  box-shadow:
+    0 1px 0 rgb(0 0 0 / 0.05),
+    0 14px 30px -18px rgb(60 35 10 / 0.55);
 }
 
-/* ---------- Inputs & buttons ---------- */
+/* perforated top edge where it tore off the pad */
+.pad::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  right: 0;
+  left: 0;
+  height: 8px;
+  background: radial-gradient(circle at 7px 8px, var(--paper) 6.5px, transparent 7px) 0 0 / 14px 8px repeat-x;
+}
+
+/* ---------- Inputs ---------- */
 
 input {
   width: 100%;
   min-width: 0;
-  padding: 12px 14px;
-  border: 1px solid var(--line);
+  padding: 13px 14px;
+  border: 2px solid var(--line);
   border-radius: 12px;
-  background: var(--card);
+  background: var(--paper);
   outline: none;
 }
 
 input:focus-visible {
-  border-color: var(--green);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 25%, transparent);
+  border-color: var(--ink);
 }
 
-.primary {
+input::placeholder {
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+.btn-tomato {
   flex: none;
-  padding: 12px 18px;
+  padding: 13px 18px;
   border: none;
   border-radius: 12px;
-  background: var(--green);
+  background: var(--tomato);
   color: #fff;
   font-weight: 700;
+  transition: transform 0.1s;
 }
 
-.primary:disabled {
-  opacity: 0.45;
+.btn-tomato:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.btn-tomato:disabled {
+  opacity: 0.4;
   cursor: default;
 }
 
-.primary:focus-visible,
-.icon:focus-visible,
-.link:focus-visible,
-.item__toggle:focus-visible,
-.filters a:focus-visible {
-  outline: 2px solid var(--green);
+:is(.btn-tomato, .add__mic, .icon, .link, .item__toggle, .filters a):focus-visible {
+  outline: 3px solid var(--citrus);
   outline-offset: 2px;
 }
 
@@ -367,30 +513,44 @@ input:focus-visible {
 .unlock {
   display: grid;
   gap: 10px;
-  margin-top: 15vh;
+  padding: 12px 0;
 }
 
 .unlock label {
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .unlock__error {
   margin: 0;
-  color: #dc2626;
-  font-size: 14px;
+  color: var(--tomato-ink);
+  font-size: 15px;
 }
 
-/* ---------- Add ---------- */
+/* ---------- Add bar ---------- */
 
 .add {
-  position: sticky;
-  top: 0;
-  z-index: 1;
   display: flex;
   gap: 8px;
-  margin: 0 -16px 12px;
-  padding: 8px 16px;
-  background: var(--bg);
+  margin-bottom: 8px;
+}
+
+.add__mic {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 50px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: none;
+}
+
+.add__mic svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
 }
 
 /* ---------- List ---------- */
@@ -398,22 +558,14 @@ input:focus-visible {
 .list {
   margin: 0;
   padding: 0;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--card);
   list-style: none;
 }
 
 .item {
   display: flex;
   align-items: center;
-  min-height: 52px;
-  padding-right: 4px;
-}
-
-.item + .item {
-  border-top: 1px solid var(--line);
+  min-height: 58px;
+  border-bottom: 2px dashed var(--line);
 }
 
 .item__toggle {
@@ -422,42 +574,91 @@ input:focus-visible {
   align-items: center;
   gap: 12px;
   min-width: 0;
-  padding: 14px 8px 14px 14px;
+  padding: 9px 4px 9px 0;
   border: none;
   background: none;
   text-align: left;
 }
 
-.item__check {
+/* Produce-sticker badge, tinted by aisle */
+.sticker {
+  display: grid;
   flex: none;
-  width: 22px;
-  height: 22px;
-  border: 2px solid var(--line);
+  place-items: center;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
+  background: var(--aisle);
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.55);
+  font-size: 21px;
   transition:
-    background-color 0.15s,
-    border-color 0.15s;
+    transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1),
+    filter 0.25s;
 }
 
-.item--done .item__check {
-  border-color: var(--green);
-  background: var(--green)
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")
-    center / 14px no-repeat;
+.aisle-produce { --aisle: #cdeac3; }
+.aisle-dairy   { --aisle: #d5e5f5; }
+.aisle-meat    { --aisle: #f6d1c7; }
+.aisle-bakery  { --aisle: #f3ddb5; }
+.aisle-pantry  { --aisle: #f8e8a6; }
+.aisle-frozen  { --aisle: #d4eff1; }
+.aisle-drinks  { --aisle: #e6d7f2; }
+.aisle-home    { --aisle: #e5dfd6; }
+
+@media (prefers-color-scheme: dark) {
+  .sticker {
+    background: color-mix(in srgb, var(--aisle) 22%, var(--paper));
+    box-shadow: none;
+  }
+}
+
+.item--done .sticker {
+  filter: grayscale(1) opacity(0.5);
+  transform: rotate(-14deg) scale(0.9);
 }
 
 .item__title {
+  position: relative;
   overflow-wrap: anywhere;
-  transition: color 0.15s;
+  font-weight: 500;
+  transition: color 0.2s;
 }
 
 .item--done .item__title {
   color: var(--muted);
-  text-decoration: line-through;
+}
+
+/* Hand-drawn strike-through that draws itself on check */
+.scribble {
+  position: absolute;
+  top: 50%;
+  left: -3px;
+  width: calc(100% + 6px);
+  height: 12px;
+  overflow: visible;
+  transform: translateY(-45%);
+  pointer-events: none;
+}
+
+.scribble path {
+  fill: none;
+  stroke: var(--tomato);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  /* dash longer than any title, in screen px (non-scaling-stroke) */
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+  transition: stroke-dashoffset 0.6s ease-out;
+}
+
+.item--done .scribble path {
+  stroke-dashoffset: 0;
 }
 
 .item__edit {
-  margin: 6px 4px 6px 8px;
+  flex: 1;
+  margin: 8px 0 8px 12px;
   padding: 8px 10px;
 }
 
@@ -465,8 +666,8 @@ input:focus-visible {
   display: grid;
   flex: none;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border: none;
   border-radius: 10px;
   background: none;
@@ -494,67 +695,145 @@ input:focus-visible {
   }
 
   .icon:hover {
-    background: var(--bg);
-    color: var(--text);
+    background: var(--kraft-soft);
+    color: var(--ink);
   }
 }
 
 .empty {
-  margin: 32px 0;
+  margin: 36px 8px;
   color: var(--muted);
+  font-size: 19px;
   text-align: center;
+  text-wrap: balance;
 }
 
-/* ---------- Footer ---------- */
+/* ---------- Pad footer ---------- */
 
-.bottom {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+.pad__foot {
+  display: grid;
+  gap: 14px;
   margin-top: auto;
-  padding-top: 20px;
-  color: var(--muted);
-  font-size: 14px;
+  padding-top: 22px;
 }
 
 .filters {
   display: flex;
   gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--kraft-soft);
 }
 
 .filters a {
-  padding: 6px 10px;
+  flex: 1;
+  padding: 8px 6px;
   border-radius: 999px;
-  color: inherit;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
   text-decoration: none;
 }
 
 .filters a.selected {
-  background: color-mix(in srgb, var(--green) 15%, transparent);
-  color: var(--green-ink);
-  font-weight: 600;
+  background: var(--ink);
+  color: var(--paper);
 }
 
-.bottom__actions {
+.pad__actions {
   display: flex;
-  gap: 12px;
-  width: 100%;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .link {
   padding: 4px 0;
   border: none;
   background: none;
-  color: var(--green-ink);
-  font-weight: 600;
+  color: var(--tomato-ink);
+  font-size: 15px;
+  font-weight: 700;
 }
 
-.link--muted {
+.link--quiet {
   margin-left: auto;
   color: var(--muted);
-  font-weight: 400;
+  font-weight: 500;
+}
+
+/* ---------- Toast ---------- */
+
+.toast {
+  position: fixed;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  left: 50%;
+  z-index: 10;
+  max-width: min(520px, calc(100% - 28px));
+  margin: 0;
+  padding: 11px 16px;
+  border-radius: 12px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 15px;
+  font-weight: 600;
+  opacity: 0;
+  transform: translate(-50%, 12px);
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
+  pointer-events: none;
+}
+
+.toast--on {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ---------- Last-item celebration ---------- */
+
+.burst {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.burst span {
+  position: absolute;
+  bottom: -40px;
+  left: var(--x);
+  font-size: 30px;
+  animation: float-up 1.6s cubic-bezier(0.2, 0.7, 0.3, 1) var(--d) forwards;
+  opacity: 0;
+}
+
+@keyframes float-up {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-85vh) rotate(var(--r));
+  }
+}
+
+@keyframes blink {
+  to {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .burst {
+    display: none;
+  }
+
+  .sticker,
+  .scribble path {
+    transition: none;
+  }
 }
 </style>

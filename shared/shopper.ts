@@ -9,9 +9,10 @@ export interface ShopperItem {
 
 export const MAX_TITLE_LENGTH = 200
 export const MAX_ITEMS = 500
+export const MAX_BATCH = 50
 
 export type ShopperMutation =
-  | { op: 'add'; id: string; title: string }
+  | { op: 'add'; items: { id: string; title: string }[] }
   | { op: 'update'; id: string; title?: string; done?: boolean }
   | { op: 'remove'; ids: string[] }
 

@@ -1,5 +1,5 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { cleanTitle, type ShopperItem, type ShopperMutation } from '../../shared/shopper'
+import { MAX_BATCH, cleanTitle, type ShopperItem, type ShopperMutation } from '../../shared/shopper'
 import {
   UnauthorizedError,
   cacheItems,
@@ -72,13 +72,37 @@ export function useShopperList() {
     }
   }
 
-  function add(rawTitle: string): boolean {
-    const title = cleanTitle(rawTitle)
-    if (!title) return false
-    const id = crypto.randomUUID()
-    const item: ShopperItem = { id, title, done: false, createdAt: Date.now() }
-    void mutate({ op: 'add', id, title }, (list) => [item, ...list])
-    return true
+  /**
+   * Add several items at once. Skips blanks, duplicates within the batch, and
+   * anything already on the list that isn't checked off yet.
+   */
+  function addMany(titles: string[]): { added: string[]; skipped: string[] } {
+    const onList = new Set(items.value.filter((i) => !i.done).map((i) => i.title.toLowerCase()))
+    const added: string[] = []
+    const skipped: string[] = []
+
+    for (const raw of titles) {
+      const title = cleanTitle(raw)
+      if (!title) continue
+      const key = title.toLowerCase()
+      if (onList.has(key)) skipped.push(title)
+      else {
+        onList.add(key)
+        added.push(title)
+      }
+    }
+
+    const batch = added.slice(0, MAX_BATCH).map((title) => ({ id: crypto.randomUUID(), title }))
+    if (batch.length) {
+      const now = Date.now()
+      const fresh: ShopperItem[] = batch.map((b, i) => ({
+        ...b,
+        done: false,
+        createdAt: now + (batch.length - i),
+      }))
+      void mutate({ op: 'add', items: batch }, (list) => [...fresh, ...list])
+    }
+    return { added: batch.map((b) => b.title), skipped }
   }
 
   const patch = (id: string, changes: Partial<ShopperItem>) => (list: ShopperItem[]) =>
@@ -142,7 +166,7 @@ export function useShopperList() {
     wrongPassphrase,
     remaining,
     completed,
-    add,
+    addMany,
     toggle,
     rename,
     remove,
