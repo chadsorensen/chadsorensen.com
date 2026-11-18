@@ -5,7 +5,11 @@ import { email, stackGroups } from '@/data/profile'
 <template>
   <section id="top" class="intro" aria-label="Introduction">
     <div class="hero">
-      <p class="label">Senior Frontend Engineer · Portland, Oregon</p>
+      <p class="label tagline">
+        <span>Senior Frontend Engineer</span>
+        <span>Portland, Oregon</span>
+        <span>Shipping since 2011</span>
+      </p>
       <h1 class="hero__title">Interfaces that feel <span class="hero__accent">obvious</span>, built to last.</h1>
       <p class="hero__lede">
         Fifteen-plus years of component systems, mobile apps and the APIs that hold them
@@ -58,6 +62,21 @@ import { email, stackGroups } from '@/data/profile'
   justify-content: center;
   gap: 32px;
   padding: 48px 4px;
+}
+
+.tagline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 0;
+}
+
+.tagline span {
+  white-space: nowrap;
+}
+
+.tagline span:not(:last-child)::after {
+  content: '·';
+  margin: 0 0.6em;
 }
 
 .hero__title {
