@@ -21,7 +21,8 @@ export interface Engagement {
   domain: string
   /** Resolved image URL (import it from src/assets/img) */
   image: string
-  via: string
+  /** Optional pill, e.g. the agency or contract firm */
+  via?: string
   what: string
   summary: string
   role: string
@@ -55,7 +56,6 @@ export const engagements: Engagement[] = [
     name: 'OnDiem',
     domain: 'ondiem.com',
     image: ondiem,
-    via: 'Contract → Full-time',
     what: 'Dental staffing marketplace',
     summary:
       'Architected and built the company’s entire frontend from the ground up in Vue and TypeScript, then owned it through a national launch and growth to 200k+ customers across several funding rounds.',

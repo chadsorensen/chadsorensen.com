@@ -31,7 +31,7 @@ const pad = (n: number) => String(n).padStart(2, '0')
                   <h3 class="engagement__name">{{ e.name }}</h3>
                   <p class="engagement__what">{{ e.what }}</p>
                 </div>
-                <span class="pill">{{ e.via }}</span>
+                <span v-if="e.via" class="pill">{{ e.via }}</span>
               </div>
               <p class="engagement__summary">{{ e.summary }}</p>
               <div class="engagement__foot">

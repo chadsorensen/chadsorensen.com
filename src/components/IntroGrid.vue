@@ -8,11 +8,11 @@ const { time, zone } = useLocalTime('America/Los_Angeles')
 <template>
   <section id="top" class="intro" aria-label="Introduction">
     <div class="tile hero">
-      <p class="label">Frontend Engineer · Portland, Oregon</p>
+      <p class="label">Senior Frontend Engineer · Portland, Oregon</p>
       <h1 class="hero__title">Interfaces that feel <span class="hero__accent">obvious</span>, built to last.</h1>
       <p class="hero__lede">
-        Independent frontend engineer. Fifteen-plus years of component systems, mobile apps and
-        the APIs that hold them together.
+        Fifteen-plus years of component systems, mobile apps and the APIs that hold them
+        together.
       </p>
     </div>
 
@@ -30,7 +30,7 @@ const { time, zone } = useLocalTime('America/Los_Angeles')
     </div>
 
     <div class="tile">
-      <p class="label">Contracting since</p>
+      <p class="label">Shipping since</p>
       <p class="year">2011</p>
     </div>
 
@@ -96,33 +96,13 @@ const { time, zone } = useLocalTime('America/Los_Angeles')
   gap: 8px;
 }
 
+/* Green "available" light; the dark ring keeps it visible on the accent */
 .status__dot {
-  position: relative;
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--on-accent);
   border-radius: 50%;
-  background: currentColor;
-}
-
-/* Soft "live" ring that expands and fades out */
-.status__dot::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: currentColor;
-  animation: pulse 2s ease-out infinite;
-}
-
-@keyframes pulse {
-  from {
-    transform: scale(1);
-    opacity: 0.5;
-  }
-  to {
-    transform: scale(3);
-    opacity: 0;
-  }
+  background: #22c55e;
 }
 
 .big {
@@ -191,12 +171,6 @@ const { time, zone } = useLocalTime('America/Los_Angeles')
 .tools__heading {
   font-size: 1.0625rem;
   font-weight: 500;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .status__dot::after {
-    display: none;
-  }
 }
 
 @media (max-width: 760px) {
