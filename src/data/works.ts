@@ -13,6 +13,7 @@ import rhconstruction from '@/assets/img/rhconstruction.jpg'
 import pongpinger from '@/assets/img/pongpinger.jpg'
 import rockyriver from '@/assets/img/rockyriver.jpg'
 import layerssquared from '@/assets/img/layerssquared.jpg'
+import apex from '@/assets/img/apex.jpg'
 
 /** Larger engagements on private platforms — shown without outbound links. */
 export interface Engagement {
@@ -99,6 +100,12 @@ export const sideProjects: Work[] = [
     url: 'https://rockyriverirrigation.com/',
     image: rockyriver,
     stack: ['Next.js', 'TypeScript', 'Tailwind'],
+  },
+  {
+    title: 'APEX Roof Rejuvenation',
+    url: 'https://apexroofrejuvenation.com/',
+    image: apex,
+    stack: ['HTML / CSS', 'JavaScript', 'Local SEO'],
   },
   {
     title: 'Layers Squared',

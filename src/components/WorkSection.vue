@@ -75,7 +75,7 @@ const pad = (n: number) => String(n).padStart(2, '0')
         <h2 id="side-h" class="section-title section-title--sm">
           Independent projects <span class="count">({{ pad(sideProjects.length) }})</span>
         </h2>
-        <p class="label">Pro-bono and personal builds on a modern stack</p>
+        <p class="label">Pro-bono and personal builds</p>
       </div>
       <ul class="side">
         <li v-for="w in sideProjects" :key="w.title">
@@ -87,7 +87,9 @@ const pad = (n: number) => String(n).padStart(2, '0')
               <h3 class="side__title">
                 {{ w.title }}<span class="visually-hidden"> (opens in a new tab)</span>
               </h3>
-              <p class="label">{{ w.stack?.join(' · ') }}</p>
+              <ul class="label side__stack">
+                <li v-for="s in w.stack" :key="s">{{ s }}</li>
+              </ul>
             </div>
           </a>
         </li>
@@ -263,7 +265,7 @@ const pad = (n: number) => String(n).padStart(2, '0')
 
 .side {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: var(--gap);
 }
 
@@ -302,6 +304,16 @@ const pad = (n: number) => String(n).padStart(2, '0')
   flex-direction: column;
   gap: 6px;
   min-width: 0;
+}
+
+.side__stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+}
+
+.side__stack li {
+  white-space: nowrap;
 }
 
 .side__title {
