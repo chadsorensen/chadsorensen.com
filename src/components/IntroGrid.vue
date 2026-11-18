@@ -17,8 +17,8 @@ const { time, zone } = useLocalTime('America/Los_Angeles')
     </div>
 
     <div class="tile tile--accent">
-      <p class="label status"><span class="status__dot" aria-hidden="true" />Status</p>
-      <p class="big">Taking on contract work</p>
+      <p class="label status"><span class="status__dot" aria-hidden="true" />Available</p>
+      <p class="big">Open to full-time &amp; contract roles</p>
     </div>
 
     <div class="tile">
@@ -97,10 +97,32 @@ const { time, zone } = useLocalTime('America/Los_Angeles')
 }
 
 .status__dot {
+  position: relative;
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: currentColor;
+}
+
+/* Soft "live" ring that expands and fades out */
+.status__dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2s ease-out infinite;
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  to {
+    transform: scale(3);
+    opacity: 0;
+  }
 }
 
 .big {
@@ -169,6 +191,12 @@ const { time, zone } = useLocalTime('America/Los_Angeles')
 .tools__heading {
   font-size: 1.0625rem;
   font-weight: 500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status__dot::after {
+    display: none;
+  }
 }
 
 @media (max-width: 760px) {
