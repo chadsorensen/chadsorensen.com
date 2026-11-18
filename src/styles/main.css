@@ -171,20 +171,6 @@ ul {
   letter-spacing: 0;
 }
 
-/* Image cards zoom gently on hover */
-.zoom {
-  overflow: hidden;
-}
-
-.zoom img {
-  transition: transform 0.5s ease;
-}
-
-a:hover .zoom img,
-a:focus-visible .zoom img {
-  transform: scale(1.04);
-}
-
 .visually-hidden {
   position: absolute;
   width: 1px;

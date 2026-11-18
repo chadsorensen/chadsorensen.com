@@ -56,7 +56,7 @@ const pad = (n: number) => String(n).padStart(2, '0')
       <ul class="cards">
         <li v-for="(w, i) in clientWork" :key="w.title">
           <a class="card" :href="w.url" target="_blank" rel="noopener">
-            <div class="card__image zoom">
+            <div class="card__image">
               <img :src="w.image" alt="" width="500" height="375" loading="lazy" decoding="async" />
             </div>
             <div class="card__caption">
@@ -80,7 +80,7 @@ const pad = (n: number) => String(n).padStart(2, '0')
       <ul class="side">
         <li v-for="w in sideProjects" :key="w.title">
           <a class="side__item" :href="w.url" target="_blank" rel="noopener">
-            <div class="side__thumb zoom">
+            <div class="side__thumb">
               <img :src="w.image" alt="" width="88" height="88" loading="lazy" decoding="async" />
             </div>
             <div class="side__text">
@@ -285,6 +285,7 @@ const pad = (n: number) => String(n).padStart(2, '0')
 
 .side__thumb {
   flex: none;
+  overflow: hidden;
   width: 88px;
   height: 88px;
   border-radius: 12px;

@@ -14,8 +14,8 @@ import portrait from '@/assets/img/chadsorensen.jpg'
         component systems, mobile apps, and the APIs that hold them together.
       </p>
       <p class="about__body">
-        I’ve contracted since 2011, so I’m as comfortable dropping into an existing team as I am
-        owning a project end to end. These days that’s mostly TypeScript across React, React Native
+        I’ve worked across agencies, startups and contract teams since 2011, so I’m as comfortable
+        dropping into an existing team as I am owning a project end to end. These days that’s mostly TypeScript across React, React Native
         and Vue.
       </p>
       <p class="about__body">
