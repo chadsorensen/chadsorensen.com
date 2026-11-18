@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import { email, stackGroups } from '@/data/profile'
-import { useLocalTime } from '@/composables/useLocalTime'
-
-const { time, zone } = useLocalTime('America/Los_Angeles')
 </script>
 
 <template>
   <section id="top" class="intro" aria-label="Introduction">
-    <div class="tile hero">
+    <div class="hero">
       <p class="label">Senior Frontend Engineer · Portland, Oregon</p>
       <h1 class="hero__title">Interfaces that feel <span class="hero__accent">obvious</span>, built to last.</h1>
       <p class="hero__lede">
@@ -16,33 +13,22 @@ const { time, zone } = useLocalTime('America/Los_Angeles')
       </p>
     </div>
 
-    <div class="tile tile--accent">
-      <p class="label status"><span class="status__dot" aria-hidden="true" />Available</p>
-      <p class="big">Open to full-time &amp; contract roles</p>
-    </div>
+    <div class="side">
+      <div class="tile tile--accent">
+        <p class="label status"><span class="status__dot" aria-hidden="true" />Available</p>
+        <p class="big">Open to full-time &amp; contract roles</p>
+      </div>
 
-    <div class="tile">
-      <p class="label">Portland, OR</p>
-      <p class="clock">
-        <span class="clock__time">{{ time }}</span>
-        <span class="label">{{ zone }} · local time</span>
-      </p>
+      <a class="tile tile--light" :href="`mailto:${email}`">
+        <span class="label">Contact</span>
+        <span class="big cta">
+          Get in touch
+          <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M7 17L17 7M9 7h8v8" />
+          </svg>
+        </span>
+      </a>
     </div>
-
-    <div class="tile">
-      <p class="label">Shipping since</p>
-      <p class="year">2011</p>
-    </div>
-
-    <a class="tile tile--light" :href="`mailto:${email}`">
-      <span class="label">Contact</span>
-      <span class="big cta">
-        Get in touch
-        <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M7 17L17 7M9 7h8v8" />
-        </svg>
-      </span>
-    </a>
 
     <div class="tile tools">
       <h2 class="label">Tools</h2>
@@ -61,23 +47,25 @@ const { time, zone } = useLocalTime('America/Los_Angeles')
 <style scoped>
 .intro {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  grid-auto-rows: minmax(200px, auto);
-  gap: var(--gap);
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+  gap: var(--gap) 48px;
 }
 
+/* Headline sits on the page itself, not in a tile */
 .hero {
-  grid-column: span 2;
-  grid-row: span 2;
-  gap: 40px;
-  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 32px;
+  padding: 48px 4px;
 }
 
 .hero__title {
-  font-size: clamp(2.75rem, 5.2vw, 4.75rem);
+  max-width: 11ch;
+  font-size: clamp(3rem, 6.4vw, 6rem);
   font-weight: 500;
-  line-height: 0.98;
-  letter-spacing: -0.04em;
+  line-height: 0.96;
+  letter-spacing: -0.045em;
 }
 
 .hero__accent {
@@ -85,9 +73,19 @@ const { time, zone } = useLocalTime('America/Los_Angeles')
 }
 
 .hero__lede {
-  max-width: 30rem;
+  max-width: 34rem;
   color: var(--text-2);
-  font-size: 1.0625rem;
+  font-size: 1.1875rem;
+}
+
+.side {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: var(--gap);
+}
+
+.side .tile {
+  min-height: 220px;
 }
 
 .status {
@@ -112,33 +110,11 @@ const { time, zone } = useLocalTime('America/Los_Angeles')
   letter-spacing: -0.02em;
 }
 
-.clock {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.clock__time {
-  font-size: 2.75rem;
-  font-weight: 500;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.1;
-}
-
-.year {
-  font-size: 4.5rem;
-  font-weight: 500;
-  letter-spacing: -0.05em;
-  line-height: 0.9;
-}
-
 .cta {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   gap: 12px;
-  font-size: 1.625rem;
 }
 
 .cta svg {
@@ -154,6 +130,7 @@ const { time, zone } = useLocalTime('America/Los_Angeles')
   grid-column: 1 / -1;
   justify-content: flex-start;
   gap: 22px;
+  margin-top: 40px;
 }
 
 .tools__groups {
@@ -173,19 +150,25 @@ const { time, zone } = useLocalTime('America/Los_Angeles')
   font-weight: 500;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 860px) {
   .intro {
-    grid-auto-rows: auto;
-  }
-
-  .tile {
-    min-height: 150px;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .hero {
-    grid-column: auto;
-    grid-row: auto;
-    padding: 28px;
+    padding: 32px 4px 16px;
+  }
+
+  .side {
+    grid-template-rows: none;
+  }
+
+  .side .tile {
+    min-height: 160px;
+  }
+
+  .tools {
+    margin-top: 24px;
   }
 }
 </style>
