@@ -1,72 +1,67 @@
 <script setup lang="ts">
-import aboutImage from '@/assets/img/me2.jpg'
-
-/** Whole years elapsed since the given date (month is 1-12). */
-function yearsSince(year: number, month: number, day: number): number {
-  const today = new Date()
-  const hadBirthday =
-    today.getMonth() + 1 > month || (today.getMonth() + 1 === month && today.getDate() >= day)
-  return today.getFullYear() - year - (hadBirthday ? 0 : 1)
-}
-
-const daughterAge = yearsSince(2012, 6, 20)
-const sonAge = yearsSince(2016, 11, 23)
+import portrait from '@/assets/img/chadsorensen.jpg'
 </script>
 
 <template>
-  <section id="about" class="panel about">
-    <h2 class="ribbon">I currently spend time contracting</h2>
-    <img class="about__image" :src="aboutImage" alt="Chad Sorensen" loading="lazy" decoding="async" />
-    <div class="inner-wrap about__columns">
-      <div>
-        <h3>Who I am</h3>
-        <p>
-          As a native Oregonian, I love being outside: be it on the mountain, in the woods or in the
-          ocean. As a Portlander, I love being inside: be it playing pinball, rolling bowling balls
-          or watching Star Wars with my {{ daughterAge }} year old daughter and chasing my
-          {{ sonAge }} year old son around the soccer field.
-        </p>
-      </div>
-      <div>
-        <h3>What I do</h3>
-        <p>
-          As a frontend developer, I love being in code: be it building component systems, shipping
-          mobile apps or wiring up APIs. These days I spend most of my time in TypeScript across
-          React, React Native and Vue. I've been contracting since 2011, so I'm just as comfortable
-          dropping into an existing team as I am owning a project end to end.
-        </p>
-      </div>
+  <section id="about" class="section about" aria-labelledby="about-h">
+    <div class="about__photo">
+      <img :src="portrait" alt="Chad bowling at a Portland alley" width="960" height="317" loading="lazy" decoding="async" />
+    </div>
+    <div class="tile about__text">
+      <h2 id="about-h" class="label">About</h2>
+      <p class="about__lead">
+        I’m a frontend engineer who’s spent fifteen-plus years making the web feel right —
+        component systems, mobile apps, and the APIs that hold them together.
+      </p>
+      <p class="about__body">
+        I’ve contracted since 2011, so I’m as comfortable dropping into an existing team as I am
+        owning a project end to end. These days that’s mostly TypeScript across React, React Native
+        and Vue.
+      </p>
+      <p class="about__body">
+        Native Oregonian. Outside, that means the mountain, the woods or the coast. Inside, it
+        means pinball, bowling, gymnastics with my daughter and soccer sidelines with my son.
+      </p>
     </div>
   </section>
 </template>
 
 <style scoped>
-.about__image {
-  width: 100%;
-}
-
-.about__columns {
+.about {
   display: grid;
-  gap: 2em;
-  margin-block: 4em;
-  padding-inline: 2em;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr));
+  gap: var(--gap);
 }
 
-@media (min-width: 768px) {
-  .about__columns {
-    grid-template-columns: 1fr 1fr;
-    gap: 4em;
-    padding-inline: 0;
-  }
+.about__photo {
+  min-height: 320px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
 }
 
-h3 {
-  margin: 0;
-  color: var(--color-white);
-  font-size: 3rem;
+.about__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1);
 }
 
-p {
-  color: var(--color-white);
+.about__text {
+  justify-content: flex-start;
+  gap: 20px;
+  padding: 36px;
+}
+
+.about__lead {
+  font-size: 1.5rem;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+}
+
+.about__body {
+  color: var(--text-2);
+  line-height: 1.6;
 }
 </style>
